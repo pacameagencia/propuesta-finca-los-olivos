@@ -1,2 +1,5 @@
-# propuesta-finca-los-olivos
-Propuesta de rediseño web para Finca Los Olivos · Pacame Agencia (no es la web oficial)
+# Propuesta de rediseño · Finca Los Olivos
+
+Demo de Pacame Agencia. No es la web oficial: [fincalosolivos.com](https://fincalosolivos.com/).
+
+Ver la propuesta: https://pacameagencia.github.io/propuesta-finca-los-olivos/
