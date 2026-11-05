@@ -555,8 +555,6 @@ body.v-compact main{padding-top:calc(var(--hdr-compact) + var(--strip))}
 .page-title{padding-top:32px}
 .page-title h1{font-size:32px;font-weight:700;letter-spacing:-.02em}
 .page-title p{color:var(--muted);margin-top:4px;font-size:16px}
-::view-transition-old(root),::view-transition-new(root){animation-duration:.25s}
-::view-transition-group(lx){animation-duration:.5s;animation-timing-function:cubic-bezier(.2,0,0,1)}
 ::view-transition-old(lx),::view-transition-new(lx){animation:none;mix-blend-mode:normal;height:100%;object-fit:cover}
 
 /* Responsive */
@@ -762,6 +760,70 @@ body.v-compact main{padding-top:calc(var(--hdr-compact) + var(--strip))}
   .hero-bar{grid-auto-flow:column;align-items:center;gap:8px}
   .hero-pp{width:38px;height:38px}
 }
+/* Movimiento: transiciones entre páginas */
+.hdr{view-transition-name:hdr}.strip{view-transition-name:strip}.btab{view-transition-name:btab}
+::view-transition-group(hdr),::view-transition-group(strip),::view-transition-group(btab){animation-duration:.45s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-old(root){animation:vtOut .3s cubic-bezier(.4,0,1,1) both}
+::view-transition-new(root){animation:vtIn .65s cubic-bezier(.16,1,.3,1) both}
+html.vt-back::view-transition-old(root){animation:vtOutBack .3s cubic-bezier(.4,0,1,1) both}
+html.vt-back::view-transition-new(root){animation:vtInBack .6s cubic-bezier(.16,1,.3,1) both}
+html.vt-right::view-transition-old(root){animation:vtOutL .35s cubic-bezier(.4,0,.2,1) both}
+html.vt-right::view-transition-new(root){animation:vtInR .6s cubic-bezier(.16,1,.3,1) both}
+html.vt-left::view-transition-old(root){animation:vtOutR .35s cubic-bezier(.4,0,.2,1) both}
+html.vt-left::view-transition-new(root){animation:vtInL .6s cubic-bezier(.16,1,.3,1) both}
+html.vt-sheet::view-transition-old(root){animation:none}
+html.vt-sheet::view-transition-new(root){animation:vtSheet .55s cubic-bezier(.16,1,.3,1) both}
+@keyframes vtOut{to{opacity:0;transform:scale(.965)}}
+@keyframes vtIn{from{opacity:0;transform:translateY(64px)}}
+@keyframes vtOutBack{to{opacity:0;transform:translateY(48px)}}
+@keyframes vtInBack{from{opacity:0;transform:scale(.965)}}
+@keyframes vtOutL{to{opacity:0;transform:translateX(-7%)}}
+@keyframes vtInR{from{opacity:0;transform:translateX(9%)}}
+@keyframes vtOutR{to{opacity:0;transform:translateX(7%)}}
+@keyframes vtInL{from{opacity:0;transform:translateX(-9%)}}
+@keyframes vtSheet{from{opacity:0;transform:translateY(10%)}}
+::view-transition-group(lx){animation-duration:.62s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-group(ttl){animation-duration:.58s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-group(tabline){animation-duration:.5s;animation-timing-function:cubic-bezier(.34,1.4,.5,1)}
+.view.novi{animation:none}
+.c-name,.rel-card b,.gcard h2,.d-title h1{width:fit-content;max-width:100%}
+/* Pestañas: la línea se desliza a la pestaña nueva */
+.tab::after{content:none}
+.tab-line{position:absolute;left:14px;right:14px;bottom:8px;height:3px;border-radius:3px;background:var(--ink);transform:scaleX(0);transition:transform .3s var(--ease)}
+.tab[aria-current="page"] .tab-line{transform:scaleX(1)}
+.hdr:not(.compact) .tab[aria-current="page"] .tab-line{view-transition-name:tabline}
+/* Aparición al hacer scroll */
+@media (prefers-reduced-motion:no-preference){
+  .rv{opacity:0;transform:translateY(34px);transition:opacity .75s cubic-bezier(.16,1,.3,1) var(--rv-d,0ms),transform 1s cubic-bezier(.16,1,.3,1) var(--rv-d,0ms)}
+  .rv.in{opacity:1;transform:none}
+  .rv-img{clip-path:inset(0 0 100% 0);transition:clip-path 1.15s cubic-bezier(.77,0,.18,1) var(--rv-d,0ms)}
+  .rv-img.in{clip-path:inset(0 0 0 0)}
+  .rv-img img{scale:1.2;transition:scale 1.7s cubic-bezier(.16,1,.3,1) var(--rv-d,0ms)}
+  .rv-img.in img{scale:1}
+  .card .c-slide img{transition:scale .8s cubic-bezier(.2,.8,.2,1)}
+  .card:hover .c-slide img{scale:1.06}
+  .rel-card:hover .sg-ph img,.gcard:hover .sg-ph img,.see article:hover .sg-ph img{scale:1.06}
+  .routes a{transition:border-color .2s,box-shadow .25s,transform .35s cubic-bezier(.2,.8,.2,1)}
+  .routes a:hover{transform:translateY(-3px)}
+}
+.rel-card:hover .sg-ph img{transform:none}
+.sg-ph img{transition:scale .8s cubic-bezier(.2,.8,.2,1)}
+/* Profundidad: las fotos grandes se desplazan más despacio que la página */
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion:no-preference){
+    :is(.cb-ph,.cross .sg-ph,.see .sg-ph,.gcard .sg-ph,.rel-card .sg-ph,.trio > *,.cheque-ph) img{animation:pxY linear both;animation-timeline:view();animation-range:cover 0% cover 100%}
+    @keyframes pxY{from{transform:translateY(-7%) scale(1.15)}to{transform:translateY(7%) scale(1.15)}}
+  }
+}
+/* Barra de lectura */
+.sprog{position:absolute;left:0;right:0;bottom:-1px;height:3px;pointer-events:none;opacity:0;transition:opacity .3s}
+.sprog i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--wine));transform:scaleX(var(--p,0));transform-origin:left center}
+body.v-prog .sprog{opacity:1}
+/* Corazón al guardar */
+.burst{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;z-index:3}
+.burst i{position:absolute;left:-3px;top:-3px;width:6px;height:6px;border-radius:50%;background:var(--heart);animation:bst .7s cubic-bezier(.2,.8,.2,1) forwards}
+.burst i:nth-child(even){background:#FFB151;width:5px;height:5px}
+@keyframes bst{0%{transform:rotate(var(--a)) translateY(-6px) scale(1);opacity:1}100%{transform:rotate(var(--a)) translateY(-30px) scale(.2);opacity:0}}
 @media (max-width:1439px){ .track{grid-auto-columns:calc((100% - 3 * 24px) / 4)} .track.exp{grid-auto-columns:calc((100% - 4 * 24px) / 5)} }
 @media (max-width:1127px){
   .foot-cols{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -827,6 +889,7 @@ body.v-compact main{padding-top:calc(var(--hdr-compact) + var(--strip))}
   .tabs .tab span:last-child{display:block}
   .tab{flex-direction:column;gap:2px;padding:0 0 10px;font-size:12px}
   .tab::after{left:0;right:0;bottom:0;height:2px}
+  .tab-line{left:0;right:0;bottom:0;height:2px}
   .tab .tab-ic{width:44px;height:44px;transition:height .3s var(--ease),width .3s var(--ease),opacity .2s}
   .hdr.compact:not(.open) .tabs{opacity:1;transform:none;pointer-events:auto}
   .hdr.compact .tab .tab-ic{width:0;height:0;opacity:0}
@@ -925,9 +988,9 @@ body.v-compact main{padding-top:calc(var(--hdr-compact) + var(--strip))}
     </a>
     <button type="button" class="m-search" data-sheet="search"><svg viewBox="0 0 24 24" class="ic"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>¿Cuándo venís?<small data-v="summary">Cualquier fecha · casas y suites</small></span></button>
     <nav class="tabs" aria-label="Secciones">
-      <a class="tab" href="#inicio" data-tab="stays" aria-label="Alojamientos"><span class="tab-ic" data-tic="house"></span><span>Alojamientos</span></a>
-      <a class="tab" href="#experiencias" data-tab="exp" aria-label="Experiencias"><span class="tab-ic" data-tic="canoe"></span><span>Experiencias</span></a>
-      <a class="tab" href="#la-finca" data-tab="finca" aria-label="La finca"><span class="tab-ic" data-tic="tree"></span><span>La finca</span></a>
+      <a class="tab" href="#inicio" data-tab="stays" aria-label="Alojamientos"><span class="tab-ic" data-tic="house"></span><span>Alojamientos</span><i class="tab-line" aria-hidden="true"></i></a>
+      <a class="tab" href="#experiencias" data-tab="exp" aria-label="Experiencias"><span class="tab-ic" data-tic="canoe"></span><span>Experiencias</span><i class="tab-line" aria-hidden="true"></i></a>
+      <a class="tab" href="#la-finca" data-tab="finca" aria-label="La finca"><span class="tab-ic" data-tic="tree"></span><span>La finca</span><i class="tab-line" aria-hidden="true"></i></a>
     </nav>
     <div class="mini" id="mini" role="search" aria-label="Búsqueda">
       <button type="button" class="ms" data-open-hdr data-v="type">Casas y suites</button>
@@ -1474,7 +1537,7 @@ function heroInit(){
   });
   const first = slides[0].querySelector('img');
   let warmed = false;
-  const warm = () => { if (warmed) return; warmed = true; HERO_READY = true; $$('img[data-hsrc]').forEach(im => { im.src = im.dataset.hsrc; im.removeAttribute('data-hsrc'); }); setTimeout(() => h.classList.add('go'), 250); setTimeout(() => load(1), 1200); };
+  const warm = () => { if (warmed) return; warmed = true; HERO_READY = true; setTimeout(() => countUp($('.hero-proof b', h)), 500); $$('img[data-hsrc]').forEach(im => { im.src = im.dataset.hsrc; im.removeAttribute('data-hsrc'); }); setTimeout(() => h.classList.add('go'), 250); setTimeout(() => load(1), 1200); };
   if (first.complete) warm(); else { first.addEventListener('load', warm, { once: true }); first.addEventListener('error', warm, { once: true }); setTimeout(warm, 4000); }
   if ('IntersectionObserver' in window) { const io = new IntersectionObserver(([en]) => h.classList.toggle('idle', !en.isIntersecting), { threshold: 0.15 }); io.observe(h); detailIO.push(io); }
 }
@@ -1763,13 +1826,15 @@ function renderFavs(){
 }
 function jumpTo(id, instant){
   const el = document.getElementById(id); if (!el) return;
+  // los bloques que aún no han aparecido están desplazados: se colocan en su sitio antes de medir
+  for (let n = el; n && n !== app; n = n.parentElement) if (n.classList.contains('rv') && !n.classList.contains('in')) { n.style.transition = 'none'; n.classList.add('in'); void n.offsetWidth; n.style.transition = ''; }
   const strip = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--strip')) || 0;
   const off = strip + (VIEW === 'detail' ? (innerWidth < 744 ? 16 : 96) : (innerWidth < 744 ? 120 : 96));
   window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - off), behavior: (RM || instant) ? 'auto' : 'smooth' });
 }
 function toggleFav(id){
   const on = !S.favs.has(id);
-  if (on) track('add_to_wishlist', { item_id: id });
+  if (on) { track('add_to_wishlist', { item_id: id }); setTimeout(() => $$(`[data-fav="${id}"]`).forEach(burst), 0); }
   on ? S.favs.add(id) : S.favs.delete(id);
   store.set('flo-favs', [...S.favs]);
   $$(`[data-fav="${id}"]`).forEach(b => {
@@ -2431,22 +2496,116 @@ function renderPage(key, section){
 }
 
 /* ==================================================================
+   MOVIMIENTO: aparición al hacer scroll, cifras que cuentan,
+   barra de lectura y corazones al guardar
+=================================================================== */
+const RV_SEL = ['.chips', '.trust', '.summary', '.row-head', '.track > .card', '.grid > .card', '.rating', '.sec > h2', '.sec > .lede', '.sec > .desc',
+  '.facts > div', '.zones > li', '.acts > li', '.am-grid > li', '.ilist > li', '.see > article', '.todo > div', '.routes > li', '.rel-card', '.gcard',
+  '.faq-h', '.faq-l > details', '.cross', '.cta-band', '.steps-s > li', '.rsteps > li', '.trio > *', '.d-kind', '.foot-cols > div', '.legal-b > *',
+  '.dist > li', '.ct-list > li', '.hours > li', '.pg-note', '.wines', '.cheque-ph', '.host', '.where', '.know', '.legal-nav', '.lead-h', '.page-title', '.fm > *'].join(',');
+const RV_IMG = ['.sg-ph', '.cb-ph', '.trio > *', '.cheque-ph', '.d-mosaic > button'].join(',');
+let RV_IO = null, IN_VT = false;
+function countUp(b){
+  if (!b || b.dataset.cu) return;
+  const m = b.textContent.trim().match(/^(\D*?)(\d+(?:,\d+)?)(\D*)$/); if (!m) return;
+  const dec = (m[2].split(',')[1] || '').length, to = parseFloat(m[2].replace(',', '.'));
+  if (to < 2 || RM) return;
+  b.dataset.cu = '1';
+  const t0 = performance.now(), dur = 1100, ease = x => 1 - Math.pow(1 - x, 4);
+  const fmt = v => m[1] + (dec ? v.toFixed(dec).replace('.', ',') : Math.round(v)) + m[3];
+  if (b.childNodes.length !== 1 || b.firstChild.nodeType !== 3) return;
+  const tn = b.firstChild;
+  const step = now => { const k = Math.min(1, (now - t0) / dur); tn.nodeValue = fmt(to * ease(k)); if (k < 1) requestAnimationFrame(step); };
+  tn.nodeValue = fmt(0); requestAnimationFrame(step);
+}
+function reveal(root){
+  if (!root) return;
+  const els = $$(RV_SEL, root).filter(el => !el.classList.contains('rv') && !el.closest('.sheet,.tour,.lb,.pop'));
+  const imgs = $$(RV_IMG, root).filter(el => !el.classList.contains('rv-img') && !el.closest('.sheet,.tour,.lb,.pop,.c-media'));
+  if (RM || !('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('rv', 'in')); return; }
+  if (!RV_IO) RV_IO = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    const t = e.target; t.classList.add('in'); RV_IO.unobserve(t);
+    if (t.matches('.facts > div')) countUp($('b', t));
+  }), { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+  const vh = innerHeight, seen = new Map();
+  const tag = (el, cls) => {
+    const p = el.parentElement, n = seen.get(p) || 0; seen.set(p, n + 1);
+    el.style.setProperty('--rv-d', `${Math.min(n, 7) * 70}ms`);
+    if (IN_VT && el.getBoundingClientRect().top < vh) { el.classList.add(cls, 'in'); if (el.matches('.facts > div')) countUp($('b', el)); return; }
+    el.classList.add(cls);
+    RV_IO.observe(el);
+  };
+  els.forEach(el => tag(el, 'rv'));
+  imgs.forEach(el => tag(el, 'rv-img'));
+}
+let rvRaf = 0;
+new MutationObserver(() => { if (rvRaf) return; rvRaf = requestAnimationFrame(() => { rvRaf = 0; reveal(app); document.body.classList.toggle('v-prog', !['stays', 'favs'].includes(VIEW)); onProg(); }); }).observe(app, { childList: true, subtree: true });
+
+/* barra de lectura bajo la cabecera */
+const sprog = document.createElement('div'); sprog.className = 'sprog'; sprog.setAttribute('aria-hidden', 'true'); sprog.innerHTML = '<i></i>';
+document.getElementById('hdr').appendChild(sprog);
+let progRaf = 0;
+function onProg(){
+  if (progRaf) return;
+  progRaf = requestAnimationFrame(() => { progRaf = 0; const max = document.documentElement.scrollHeight - innerHeight; sprog.style.setProperty('--p', max > 0 ? Math.min(1, scrollY / max) : 0); });
+}
+window.addEventListener('scroll', onProg, { passive: true });
+
+/* corazón que estalla al guardar */
+function burst(b){
+  if (RM || !b.offsetParent) return;
+  if (getComputedStyle(b).position === 'static') b.style.position = 'relative';
+  const s = document.createElement('span'); s.className = 'burst'; s.setAttribute('aria-hidden', 'true');
+  s.innerHTML = Array.from({ length: 8 }, (_, i) => `<i style="--a:${i * 45}deg"></i>`).join('');
+  b.appendChild(s); setTimeout(() => s.remove(), 750);
+}
+
+/* transiciones entre páginas */
+const TOPTAB = { '#inicio':0, '#experiencias':1, '#la-finca':2 };
+const tabOf = h => { h = h || '#inicio'; if (h === '#' || h === '') return 0; for (const k in TOPTAB) if (h === k) return TOPTAB[k]; return undefined; };
+function vtDir(href){
+  const a = tabOf(location.hash), b = tabOf(href);
+  if (a !== undefined && b !== undefined) return b > a ? 'vt-right' : b < a ? 'vt-left' : 'vt-fwd';
+  if (b !== undefined) return 'vt-back';
+  return 'vt-fwd';
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const heroTarget = () => innerWidth < 744 ? $('.dmm-track img', app) : $('.d-mosaic .m0 img', app);
+function clearVT(){ $$('[style*="view-transition-name"]').forEach(el => { el.style.viewTransitionName = ''; }); document.documentElement.classList.remove('vt-fwd', 'vt-back', 'vt-left', 'vt-right'); IN_VT = false; }
+function runVT(cls, update, src){
+  if (!document.startViewTransition || RM) { update(); return; }
+  clearVT();
+  document.documentElement.classList.add(cls); IN_VT = true;
+  if (src) { if (src.img) src.img.style.viewTransitionName = 'lx'; if (src.title) src.title.style.viewTransitionName = 'ttl'; }
+  const vt = document.startViewTransition(async () => {
+    update();
+    $$('.view', app).forEach(v => v.classList.add('novi'));
+    if (!src) return;
+    const t = src.target ? src.target() : heroTarget();
+    if (t && src.img) {
+      t.style.viewTransitionName = 'lx';
+      if (src.same && src.img.currentSrc) { const real = t.getAttribute('src'); t.src = src.img.currentSrc; if (real) setTimeout(() => { t.src = real; }, 900); }
+      try { await Promise.race([t.decode(), sleep(350)]); } catch (_) {}
+    }
+    const h1 = src.title && (src.titleTarget ? src.titleTarget() : $('.d-title h1, .lead-h h1', app));
+    if (h1) h1.style.viewTransitionName = 'ttl';
+  });
+  vt.ready.catch(() => {}); vt.updateCallbackDone.catch(() => {});
+  vt.finished.then(clearVT, clearVT);
+}
+
+/* ==================================================================
    NAVEGACIÓN
 =================================================================== */
 const ROUTE_RE = /^#(inicio|favoritos|experiencias|experiencia-[\w-]+|la-finca|la-finca-[\w-]+)$/;
 const isRoute = h => !!h && (ROUTE_RE.test(h) || !!BY[h.slice(1)] || !!pageKey(h.slice(1)));
 let NAV_SKIP = false, NAV_INSIDE = false;
-function navigate(href, morphImg, section){
+function navigate(href, src, section){
   if (section) PENDING = section;
   NAV_INSIDE = true;
-  const go = () => { if (location.hash !== href) { NAV_SKIP = true; location.hash = href; } route(); };
-  if (!document.startViewTransition || RM) { go(); return; }
-  if (morphImg) morphImg.style.viewTransitionName = 'lx';
-  const vt = document.startViewTransition(() => {
-    go();
-    if (morphImg) { const t = innerWidth < 744 ? $('.dmm-track img') : $('.d-mosaic .m0 img'); if (t) t.style.viewTransitionName = 'lx'; }
-  });
-  vt.finished.finally(() => $$('img').forEach(im => { if (im.style.viewTransitionName) im.style.viewTransitionName = ''; }));
+  const dir = vtDir(href);
+  runVT(dir, () => { if (location.hash !== href) { NAV_SKIP = true; location.hash = href; } route(); }, src);
 }
 function route(){
   closePop(); closeSheets(); closeHdr();
@@ -2461,7 +2620,12 @@ function route(){
   if ((m = h.match(/^la-finca(?:-([\w-]+))?$/))) return renderView('finca', m[1]);
   renderView('stays');
 }
-window.addEventListener('hashchange', () => { if (NAV_SKIP) { NAV_SKIP = false; return; } route(); });
+window.addEventListener('hashchange', () => {
+  if (NAV_SKIP) { NAV_SKIP = false; return; }
+  let src = null;
+  if (VIEW === 'detail' && CUR) { const id = CUR.id, im = heroTarget(); if (im) src = { img: im, target: () => $(`.card[data-card="${id}"] .c-slide img`, app), title: $('.d-title h1', app), titleTarget: () => $(`.card[data-card="${id}"] .c-name`, app) }; }
+  runVT('vt-back', route, src);
+});
 
 /* ==================================================================
    EVENTOS
@@ -2487,9 +2651,15 @@ document.addEventListener('click', e => {
     const tab = el.closest('.tab');
     if (tab) { tab.classList.remove('bump'); void tab.offsetWidth; tab.classList.add('bump'); }
     if ((el.dataset.brand !== undefined || tab) && href === (location.hash || '#inicio') && VIEW !== 'detail') { window.scrollTo({ top:0, behavior: RM ? 'auto' : 'smooth' }); return; }
-    let morph = null;
-    if (BY[href.slice(1)]) { const card = el.closest('.card'); if (card) { const tr = $('.c-track', card); if (tr && Math.round(tr.scrollLeft / Math.max(1, tr.clientWidth)) === 0) morph = $('.c-slide img', card); } }
-    navigate(href, morph); return;
+    let src = null;
+    const card = el.closest('.card, .rel-card, .gcard, .cross');
+    if (card) {
+      const im = card.querySelector('.c-slide img, .sg-ph img'), isL = !!BY[href.slice(1)];
+      let first = true;
+      if (isL) { const tr = $('.c-track', card); first = !tr || Math.round(tr.scrollLeft / Math.max(1, tr.clientWidth)) === 0; }
+      if (im && im.complete && im.naturalWidth > 0 && first) src = { img: im, same: isL, title: card.querySelector('.c-name, .rel-card b, .gcard h2') };
+    }
+    navigate(href, src); return;
   }
   if ((el = T.closest('[data-jump]'))) { e.preventDefault(); jumpTo(el.dataset.jump); return; }
   if (T.closest('#menuBtn')) { const open = menuPop.hidden; menuPop.hidden = !open; menuBtn.setAttribute('aria-expanded', open); return; }
@@ -2527,6 +2697,13 @@ document.addEventListener('click', e => {
   if ((el = T.closest('.c-prev, .c-next'))) { const tr = $('.c-track', el.closest('.c-media')); tr.scrollBy({ left: (el.classList.contains('c-next') ? 1 : -1) * tr.clientWidth, behavior: RM ? 'auto' : 'smooth' }); return; }
   if ((el = T.closest('[data-row-prev],[data-row-next]'))) { const tr = $('.track', el.closest('.row')); tr.scrollBy({ left: (el.hasAttribute('data-row-next') ? 1 : -1) * tr.clientWidth * .9, behavior: RM ? 'auto' : 'smooth' }); return; }
   if ((el = T.closest('[data-exp]'))) { openExp(el.dataset.exp); return; }
+  if ((el = T.closest('[data-tour]')) && !el.dataset.vt) {
+    const ci = el.querySelector('img'); let idx = -1;
+    if (ci && ci.complete && ci.naturalWidth) { const m = el.className.match(/\bm(\d)\b/); idx = m ? +m[1] : (el.parentElement.classList.contains('dmm-track') ? [...el.parentElement.children].indexOf(el) : -1); }
+    el.dataset.vt = '1';
+    runVT('vt-sheet', () => { el.click(); delete el.dataset.vt; }, idx >= 0 ? { img: ci, target: () => $(`.tour [data-lbi="${idx}"] img`) } : null);
+    return;
+  }
   if ((el = T.closest('[data-tour]'))) {
     if (el.dataset.tour === 'finca') openTour(FINCA_PHOTOS, 'Finca Los Olivos', 'Fotos de la finca, del spa, del restaurante y de Alcalá del Júcar');
     else if (el.dataset.tour === 'page' && CUR_PG) openTour(CUR_PG.photos, CUR_PG.title, 'Fotos de Finca Los Olivos');
